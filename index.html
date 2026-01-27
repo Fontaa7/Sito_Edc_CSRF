@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSRF_CORE | Intelligence & Defense</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;500&family=Inter:wght@300;400;700;900&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
+
+        :root {
+            --bg: #020205;
+            --accent: #00f2ff;
+            --border: rgba(0, 242, 255, 0.2);
+            --surface: #0a0a0f;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: #e2e8f0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .cyber-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            position: relative;
+        }
+
+        .theory-section {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 6rem 2rem;
+            display: none;
+        }
+
+        .theory-section.active {
+            display: block;
+            animation: sectionFade 0.5s ease-out;
+        }
+
+        @keyframes sectionFade {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .theory-p {
+            font-family: 'Lora', serif;
+            font-size: 1.25rem;
+            line-height: 2;
+            margin-bottom: 2rem;
+            text-align: justify;
+            color: #cbd5e1;
+        }
+
+        .theory-p b {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .code-window {
+            background: #000;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 3rem 0;
+            overflow: hidden;
+        }
+
+        .code-header {
+            background: #111;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-family: 'Fira Code';
+            font-size: 0.8rem;
+        }
+
+        .code-body {
+            padding: 2rem;
+            font-family: 'Fira Code';
+            color: #a5f3fc;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .btn-nav {
+    border: 1px solid var(--border);
+    padding: 0.6rem 1.2rem;
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 800;
+    transition: all 0.25s ease;
+    background: transparent;
+    color: #e2e8f0;
+}
+
+/* HOVER → leggero highlight */
+.btn-nav:hover {
+    background: rgba(0, 242, 255, 0.15);
+    color: #7dd3fc;
+    box-shadow: 0 0 6px rgba(0, 242, 255, 0.35);
+}
+
+/* ACTIVE → stato selezionato */
+.btn-nav.active {
+    background: var(--accent);
+    color: #000;
+    box-shadow: 0 0 15px var(--accent);
+}
+
+        .img-container {
+            border: 1px solid var(--border);
+            padding: 10px;
+            background: #050505;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            border: 1px solid var(--border);
+            padding: .35rem .6rem;
+            border-radius: 999px;
+            font-family: 'Fira Code';
+            font-size: .75rem;
+            color: #7dd3fc;
+            background: rgba(0, 242, 255, .06);
+            margin: .25rem .35rem .25rem 0;
+        }
+
+        .mini-title {
+            font-family: 'Fira Code';
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: rgba(0, 242, 255, .8);
+            font-size: .8rem;
+            margin-bottom: .6rem;
+        }
+
+        .list-cyber li {
+            margin: .6rem 0;
+        }
+
+        .quote {
+            border-left: 3px solid var(--accent);
+            padding: 1rem 1rem;
+            background: rgba(0, 242, 255, .06);
+            font-family: 'Lora', serif;
+            color: #cbd5e1;
+            margin: 1.2rem 0 2rem 0;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-md border-b border-white/10 py-4 px-8 flex justify-between items-center">
+        <div class="flex items-center gap-3 cursor-pointer" onclick="showSection('home')">
+            <div class="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></div>
+            <span class="font-black tracking-tighter text-xl">CSRF_CORE</span>
+        </div>
+        <div class="flex gap-2">
+   <button onclick="showSection('m3')" class="btn-nav" id="btn-m3">Cookies HTTP</button>
+            <button onclick="showSection('m1')" class="btn-nav" id="btn-m1">Attaco CSRF</button>
+            <button onclick="showSection('m4')" class="btn-nav" id="btn-m4">Difesa CSRF</button>
+            <button onclick="showSection('m2')" class="btn-nav" id="btn-m2">CSRF in Python</button>
+<button id="btn-autori" class="btn-nav text-cyan-400"><i class="fa-solid fa-user"></i></button>
+
+        </div>
+    </nav>
+<div id="autori-popup" class="hidden fixed top-16 right-8 bg-black/90 border border-cyan-400 rounded-lg p-4 text-cyan-300 text-sm shadow-lg z-50">
+    <strong>Autori del sito:</strong>
+    <ul class="mt-2 list-disc list-inside">
+        <li>Ivan Iobizzi</li>
+        <li>Giulio Fontana</li>
+        <li>Tommaso Acquistapace</li>
+<li>Mattia Della Bernarda</li>
+    </ul>
+</div>
+<script>
+    const btnAutori = document.getElementById('btn-autori');
+    const popup = document.getElementById('autori-popup');
+
+    btnAutori.addEventListener('click', () => {
+        popup.classList.toggle('hidden');
+    });
+
+    // Chiudi il popup se clicco fuori
+    window.addEventListener('click', (e) => {
+        if (!popup.contains(e.target) && e.target !== btnAutori) {
+            popup.classList.add('hidden');
+        }
+    });
+</script>
+    <section id="home" class="theory-section active pt-32">
+        <div class="mb-12">
+            <h1 class="text-7xl font-black mb-6 tracking-tighter uppercase">Cross-Site <br><span class="text-cyan-500">Request Forgery</span>.</h1>
+            <p class="text-xl text-cyan-500/60 font-mono mb-10">[ Module_0 : Home ]</p>
+            <div>
+                <span class="tag"><i class="fa-solid fa-cookie-bite"></i> session cookies</span>
+                <span class="tag"><i class="fa-solid fa-shield-halved"></i> token CSRF</span>
+                <span class="tag"><i class="fa-solid fa-globe"></i> origin / referer</span>
+                <span class="tag"><i class="fa-solid fa-triangle-exclamation"></i> azioni state-changing</span>
+            </div>
+        </div>
+
+        <div class="theory-p">
+            Il <b>Cross-Site Request Forgery (CSRF)</b> è un attacco che sfrutta la fiducia che un sito web ripone nel browser di un utente autenticato. A differenza di altre vulnerabilità, il CSRF non mira a rubare dati direttamente dal server, ma a <b>indurre la vittima</b> a eseguire involontariamente azioni a proprio svantaggio (es. cambiare email, impostazioni, fare un’operazione).
+        </div>
+
+   
+        <div class="img-container">
+           
+            <svg viewBox="0 0 1200 420" class="w-full h-auto">
+                <defs>
+                    <linearGradient id="g1" x1="0" x2="1">
+                        <stop offset="0" stop-color="#00f2ff" stop-opacity=".25" />
+                        <stop offset="1" stop-color="#00f2ff" stop-opacity=".03" />
+                    </linearGradient>
+                </defs>
+                <rect x="0" y="0" width="1200" height="420" fill="url(#g1)" />
+                <g fill="none" stroke="#00f2ff" stroke-opacity=".55" stroke-width="2">
+                    <rect x="60" y="90" width="280" height="240" rx="12" />
+                    <rect x="460" y="90" width="280" height="240" rx="12" />
+                    <rect x="860" y="90" width="280" height="240" rx="12" />
+                    <path d="M340 210 L460 210" />
+                    <path d="M740 210 L860 210" />
+                </g>
+                <g fill="#e2e8f0" font-family="Inter, sans-serif" font-size="28" font-weight="700">
+                    <text x="95" y="150">Vittima</text>
+                    <text x="485" y="150">Browser</text>
+                    <text x="890" y="150">Sito bersaglio</text>
+                </g>
+                <g fill="#cbd5e1" font-family="Fira Code, monospace" font-size="18">
+                    <text x="95" y="195">Utente loggato</text>
+                    <text x="95" y="220">Cookie validi</text>
+                    <text x="485" y="195">Invia richiesta +</text>
+                    <text x="485" y="220">cookie automatici</text>
+                    <text x="890" y="195">Accetta richiesta</text>
+                    <text x="890" y="220">se manca controllo</text>
+                </g>
+                <g fill="#ffd166" font-family="Fira Code, monospace" font-size="16">
+                    <text x="435" y="40">richiesta forzata da sito malevolo</text>
+                </g>
+            </svg>
+         
+        </div>
+
+        <div class="theory-p">
+    Il <b>Cross-Site Request Forgery (CSRF)</b> è una vulnerabilità di logica applicativa che sfrutta la fiducia implicita
+    che un server ripone nel browser di un utente autenticato. L’attacco non richiede il furto delle credenziali,
+    né l’accesso diretto alla sessione: è sufficiente che la vittima abbia una sessione attiva e che il browser
+    invii automaticamente i cookie di autenticazione.
+</div>
+
+<div class="theory-p">
+    Il principio alla base del CSRF è la <b>confusione del contesto</b>. Dal punto di vista del server, la richiesta
+    ricevuta è formalmente corretta: proviene da un utente autenticato, contiene cookie validi e rispetta il formato
+    atteso. Tuttavia, l’intento reale dell’utente non viene mai verificato.
+</div>
+
+<div class="theory-p">
+    Il browser gioca un ruolo centrale nell’attacco. È lui che conserva i cookie di sessione, decide quando inviarli
+    e genera automaticamente richieste HTTP tramite normali elementi HTML come form, immagini o iframe.
+    L’attaccante non interagisce direttamente con il server bersaglio, ma sfrutta il comportamento standard del browser.
+</div>
+
+<div class="theory-p">
+    Qualsiasi azione che modifica lo stato del server può essere un obiettivo CSRF: cambiamento di dati personali,
+    invio di messaggi, operazioni finanziarie o modifiche di configurazione. Più un endpoint è semplice e privo di
+    controlli aggiuntivi, maggiore è la sua esposizione.
+</div>
+
+<!-- IMMAGINE DI SEPARAZIONE -->
+<div class="img-container">
+    <img src="https://wcanvas.com/wp-content/uploads/2023/04/WORDPRESS-CSRF-1-1024x743.jpg" alt="CSRF Attack Flow" class="w-full h-auto opacity-80 hover:opacity-100 transition-opacity">
+</div>
+
+<div class="theory-p">
+    Un aspetto critico del CSRF è che l’attaccante non ha bisogno di leggere la risposta del server.
+    L’obiettivo dell’attacco è esclusivamente l’esecuzione dell’azione. Le politiche di sicurezza del browser,
+    come la <b>Same-Origin Policy</b>, bloccano l’accesso alla risposta, ma non impediscono l’invio della richiesta.
+</div>
+
+<div class="theory-p">
+    Questo rende il CSRF particolarmente insidioso anche in ambienti ben isolati dal punto di vista della lettura
+    dei dati. Anche se un sito è protetto contro la fuga di informazioni, può comunque essere vulnerabile a
+    operazioni forzate se non verifica l’intento dell’utente.
+</div>
+
+<div class="theory-p">
+    Gli attacchi CSRF sono spesso veicolati tramite tecniche di ingegneria sociale: email, messaggi, post sui social,
+    QR code o link apparentemente innocui. È sufficiente che la vittima visiti una pagina controllata
+    dall’attaccante mentre è autenticata sul sito bersaglio.
+</div>
+
+<div class="theory-p">
+    Dal punto di vista difensivo, il problema non è il cookie in sé, ma il fatto che venga usato come unica prova
+    di autorizzazione. Senza un secondo fattore logico — come un <b>token CSRF</b> o un controllo di origine —
+    il server non può distinguere una richiesta legittima da una forzata.
+</div>
+
+<div class="theory-p">
+    In sintesi, il CSRF sfrutta un comportamento normale del web: il browser che aiuta l’utente ricordando
+    automaticamente chi è. Senza un controllo esplicito dell’intento, questa comodità diventa una superficie
+    di attacco critica.
+</div>
+
+
+
+        <div class="cyber-card mt-10">
+            <h4 class="text-cyan-500 font-bold mb-2 uppercase text-sm">Status Attuale</h4>
+            <p class="text-gray-400 text-sm italic">
+                Oggi molte app mitigano il CSRF con token e con politiche cookie moderne (es. SameSite), ma resta critico su applicazioni legacy, su endpoint che non controllano origine/intent e su flussi “sensibili” esposti via richiesta web.
+            </p>
+            <div class="mt-6">
+                <div class="mini-title">Lab (SR-5) – confronta vulnerabile vs protetto</div>
+                <p class="text-gray-400 text-sm font-mono leading-relaxed">
+                    Esempio in esecuzione sul server <b>192.168.120.3:8080</b> (accessibile solo da scuola)<br>
+                    SR-5: session example (<b>username=user</b>, <b>password=1234</b>)<br>
+                    vulnerable to CSRF attack: <span class="text-cyan-300">http://192.168.120.3:8080/testsession/index.php</span><br>
+                    with CSRF protection: <span class="text-cyan-300">http://192.168.120.3:8080/testsession-csrf/index.php</span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="m1" class="theory-section pt-32">
+        <div class="mb-12">
+            <h2 class="text-5xl font-black tracking-tighter uppercase">Anatomia <span class="text-cyan-500">dell’attacco</span></h2>
+            <p class="text-xl text-cyan-500/60 font-mono mt-4">[ Module_02: Attack ]</p>
+        </div>
+       <div class="cyber-card mt-10">
+    <div class="mini-title">Meccanismi, presupposti e modalità operative</div>
+
+    <div class="theory-p">
+        Un attacco <b>Cross-Site Request Forgery</b> non avviene in modo arbitrario, ma richiede
+        una serie di <b>condizioni preliminari ben definite</b>. La più importante è che la vittima
+        sia già autenticata presso l’applicazione bersaglio e che il browser conservi
+        <b>cookie di sessione validi</b>.
+    </div>
+
+</div>
+
+<div class="cyber-card mt-10">
+    <div class="mini-title">1. Presupposti necessari</div>
+    <p class="theory-p">
+        Un attacco CSRF è possibile solo se sono soddisfatte alcune condizioni tipiche:
+    </p>
+    <ul class="list-cyber text-gray-300">
+        <li><b>Autenticazione basata su cookie</b></li>
+        <li><b>Assenza di controlli sull’intenzione della richiesta</b></li>
+        <li><b>Endpoint sensibili</b> accessibili tramite richieste HTTP standard</li>
+    </ul>
+    <div class="quote">
+        L’attaccante non ha bisogno di conoscere le credenziali dell’utente,
+        né il contenuto dei cookie: è sufficiente che il browser li invii automaticamente.
+    </div>
+</div>
+
+<div class="cyber-card mt-10">
+    <div class="mini-title">2. Ruolo centrale del browser</div>
+    <p class="theory-p">
+        Nel CSRF il <b>browser della vittima</b> svolge un ruolo attivo, seppur inconsapevole.
+        È il browser che:
+    </p>
+    <ul class="list-cyber text-gray-300">
+        <li>conserva i cookie di sessione</li>
+        <li>decide quando inviarli</li>
+        <li>esegue automaticamente richieste HTTP generate dalla pagina</li>
+    </ul>
+    <div class="theory-p">
+        L’attaccante non interagisce direttamente con il server bersaglio, ma
+        <b>manipola il comportamento del browser</b>, sfruttandone le regole standard.
+        Da questo punto di vista, il CSRF è un <b>attacco di confusione del contesto</b>,
+        non di violazione diretta.
+    </div>
+</div>
+
+<div class="cyber-card mt-10">
+    <div class="mini-title">3. Generazione di richieste cross-site</div>
+    <p class="theory-p">
+        Il CSRF si basa sulla possibilità di generare richieste HTTP verso un dominio esterno
+        utilizzando normali costrutti HTML. Elementi come:
+    </p>
+    <ul class="list-cyber text-gray-300">
+        <li><code>&lt;form&gt;</code></li>
+        <li><code>&lt;img&gt;</code></li>
+        <li><code>&lt;iframe&gt;</code></li>
+        <li><code>&lt;link&gt;</code></li>
+    </ul>
+    <p class="theory-p">
+        possono indurre il browser a inviare richieste automatiche verso il sito bersaglio.
+        Un form HTML, ad esempio, può essere configurato per inviare una richiesta <b>POST</b>
+        immediatamente al caricamento della pagina, senza alcuna interazione visibile.
+    </p>
+</div>
+
+<div class="cyber-card mt-10">
+    <div class="mini-title">4. Sfruttamento dei cookie di sessione</div>
+    <p class="theory-p">
+        Quando il browser invia una richiesta verso il dominio bersaglio,
+        allega automaticamente tutti i cookie compatibili con dominio e percorso,
+        inclusi i <b>cookie di sessione</b>.
+    </p>
+    <p class="theory-p">
+        Dal punto di vista del server:
+    </p>
+    <ul class="list-cyber text-gray-300">
+        <li>la richiesta proviene da un utente valido</li>
+        <li>la sessione è correttamente identificata</li>
+        <li>non vi sono anomalie sintattiche</li>
+    </ul>
+    <div class="quote">
+        Il server non ha modo di distinguere se la richiesta è stata generata
+        da una pagina legittima o da un sito controllato dall’attaccante.
+    </div>
+</div>
+
+<div class="cyber-card mt-10">
+    <div class="mini-title">5. Indipendenza dalla risposta</div>
+    <p class="theory-p">
+        Una caratteristica fondamentale del CSRF è che l’attaccante
+        <b>non ha bisogno di leggere la risposta del server</b>.
+        L’obiettivo è l’esecuzione dell’azione, non l’estrazione di dati.
+    </p>
+    <p class="theory-p">
+        Le politiche di sicurezza del browser (es. <b>Same-Origin Policy</b>)
+        impediscono la lettura della risposta, ma <b>non l’invio della richiesta</b>.
+    </p>
+    <div class="quote">
+        Questa asimmetria rende il CSRF particolarmente insidioso:
+        l’attacco può avere successo anche senza accesso ai dati di ritorno.
+    </div>
+</div>
+
+<div class="cyber-card mt-10">
+    <div class="mini-title">6. Tipologie di azioni sfruttabili</div>
+    <p class="theory-p">
+        Le azioni più frequentemente prese di mira da un attacco CSRF
+        sono quelle che <b>modificano lo stato</b> del server o dell’account:
+    </p>
+    <ul class="list-cyber text-gray-300">
+        <li>cambiamento di dati personali</li>
+        <li>operazioni finanziarie</li>
+        <li>modifica di configurazioni</li>
+        <li>invio di messaggi o richieste</li>
+    </ul>
+    <p class="theory-p">
+        L’attacco è tanto più efficace quanto più l’endpoint bersaglio:
+    </p>
+    <ul class="list-cyber text-gray-300">
+        <li>accetta parametri semplici</li>
+        <li>non richiede conferme aggiuntive</li>
+        <li>si affida esclusivamente alla sessione per l’autorizzazione</li>
+    </ul>
+</div>
+
+    </section>
+
+<section id="m2" class="theory-section pt-32">
+        <div class="mb-12">
+            <h2 class="text-5xl font-black tracking-tighter uppercase">CSRF <span class="text-cyan-500"> IN PYTHON</span></h2>
+            <p class="text-xl text-cyan-500/60 font-mono mt-4">[ Module_04: Example ]</p>
+        </div>
+       <div class="cyber-card mt-10">
+    <div class="mini-title">Esempio Python: CSRF automatizzato</div>
+    <p class="theory-p">
+        Il seguente script Python mostra come un attaccante potrebbe automatizzare una sequenza di richieste
+        CSRF verso un endpoint vulnerabile che restituisce frammenti di flag. L’esempio utilizza la libreria
+        <b>requests</b> per gestire sessioni e cookie, e simula il comportamento di un browser autenticato.
+    </p>
+
+    <div class="code-window">
+        <div class="code-header">Python CSRF Script</div>
+        <div class="code-body">
+import requests
+import json
+
+s = requests.Session()
+
+# Autenticazione
+payload = {'username':'admin', 'password' : 'admin'}
+u = 'http://web-11.challs.olicyber.it/login'
+risposta = s.post(u, json=payload)
+
+flag = " "
+c = json.loads(risposta.text)
+
+# Recupero dei pezzi di flag tramite CSRF
+for i in range(0,4):
+    headers = {'csrf': c["csrf"], 'index': i}
+    first = 'http://web-11.challs.olicyber.it/flag_piece'
+    r2 = s.get(first, params=headers)
+    c = json.loads(r2.text)
+    flag = flag + c["flag_piece"]
+
+print(flag)
+        </div>
+    </div>
+
+    <div class="theory-p">
+        <b>Come funziona il codice:</b>
+        <ul class="list-cyber text-gray-300">
+            <li>Viene creata una <b>sessione persistente</b> con <code>requests.Session()</code>, così che i cookie di autenticazione siano mantenuti automaticamente.</li>
+            <li>Si invia una <b>richiesta POST</b> al login con username e password per autenticare l’utente.</li>
+            <li>La risposta contiene un token CSRF, necessario per interagire con l’endpoint vulnerabile.</li>
+            <li>Il ciclo <code>for</code> invia più richieste GET verso l’endpoint <code>/flag_piece</code>, simulando l’invio automatico di richieste dal browser.</li>
+            <li>Ad ogni iterazione, il token CSRF viene passato negli headers, e il pezzo di flag restituito viene concatenato alla variabile <code>flag</code>.</li>
+            <li>Infine, il flag completo viene stampato in console.</li>
+        </ul>
+    </div>
+
+    <div class="quote">
+        <b>Nota didattica:</b> Questo esempio mostra l’uso pratico dei cookie di sessione e dei token CSRF.
+        In scenari reali, un server sicuro impedirebbe richieste non autorizzate rifiutando token mancanti o
+        validando l’origin/referer.
+    </div>
+</div>
+
+
+    </section>
+
+    <!-- === SEZIONE M3: COOKIE HTTP (SOSTITUISCE "IL GIGANTE") === -->
+<section id="m3" class="theory-section pt-32">
+    <div class="mb-12">
+        <h2 class="text-5xl font-black tracking-tighter uppercase">
+            Cookies <span class="text-cyan-500">HTTP</span>
+        </h2>
+        <p class="text-xl text-cyan-500/60 font-mono mt-4">
+            [ Module_01: Cookies ]
+        </p>
+    </div>
+
+    <div class="theory-p">
+        Il protocollo <b>HTTP</b>, per come è stato progettato, è intrinsecamente <b>stateless</b>: ogni richiesta che un client
+        invia a un server è indipendente da tutte le precedenti. Questo significa che, senza un meccanismo aggiuntivo,
+        un server non sarebbe in grado di distinguere un utente da un altro, né di ricordare se un determinato client
+        ha già effettuato un’operazione come il login.
+    </div>
+
+    <div class="theory-p">
+        Per risolvere questo problema, i browser moderni implementano i <b>cookie HTTP</b>, ovvero piccoli frammenti di
+        informazione testuale che il server può memorizzare nel browser dell’utente. Una volta memorizzati, i cookie
+        vengono allegati automaticamente dal browser a tutte le richieste successive dirette verso lo stesso ambito
+        di validità.
+    </div>
+
+    <div class="quote">
+        Questo comportamento automatico è al tempo stesso <b>la forza</b> e <b>la debolezza</b> dei cookie.
+    </div>
+
+    <div class="cyber-card">
+        <div class="mini-title">Creazione e invio dei cookie</div>
+        <p class="theory-p">
+            Quando un server desidera creare un cookie, include nella risposta HTTP un’intestazione <b>Set-Cookie</b>.
+        </p>
+
+        <div class="code-window">
+            <div class="code-header">Risposta HTTP</div>
+            <div class="code-body">HTTP/1.1 200 OK
+Set-Cookie: session_id=abc123</div>
+        </div>
+
+        <p class="theory-p">
+            Il browser salva il cookie e, per ogni richiesta futura compatibile, lo invia automaticamente:
+        </p>
+
+        <div class="code-window">
+            <div class="code-header">Richiesta successiva</div>
+            <div class="code-body">Cookie: session_id=abc123</div>
+        </div>
+
+        <p class="theory-p">
+            Il server utilizza il valore del cookie per identificare la sessione, recuperare i dati associati
+            all’utente e stabilire il contesto della richiesta. Il browser <b>non interpreta</b> il contenuto del cookie:
+            si limita a conservarlo e reinviarlo.
+        </p>
+    </div>
+
+    <div class="cyber-card mt-10">
+        <div class="mini-title">Durata e ciclo di vita</div>
+        <p class="theory-p">
+            Un <b>session cookie</b> non possiede attributi temporali ed esiste solo fino alla chiusura del browser.
+            È comunemente utilizzato per le sessioni di autenticazione.
+        </p>
+
+        <p class="theory-p">
+            Un <b>persistent cookie</b>, invece, include un attributo <b>Expires</b> o <b>Max-Age</b> e rimane memorizzato
+            anche dopo il riavvio del browser.
+        </p>
+
+        <div class="code-window">
+            <div class="code-header">Esempio</div>
+            <div class="code-body">Set-Cookie: theme=dark; Max-Age=86400</div>
+        </div>
+
+        <p class="theory-p">
+            Più un cookie vive a lungo, maggiore è la <b>superficie di attacco</b>.
+        </p>
+    </div>
+
+    <div class="cyber-card mt-10">
+        <div class="mini-title">Ambito di validità</div>
+        <p class="theory-p">
+            L’attributo <b>Domain</b> stabilisce per quali domini il cookie è valido.
+        </p>
+
+        <div class="code-window">
+            <div class="code-header">Domain</div>
+            <div class="code-body">Set-Cookie: id=1; Domain=example.com</div>
+        </div>
+
+        <p class="theory-p">
+            In questo caso il cookie verrà inviato sia a <i>example.com</i> sia a <i>sub.example.com</i>.
+        </p>
+
+        <p class="theory-p">
+            L’attributo <b>Path</b> restringe ulteriormente l’ambito:
+        </p>
+
+        <div class="code-window">
+            <div class="code-header">Path</div>
+            <div class="code-body">Set-Cookie: id=1; Path=/account</div>
+        </div>
+    </div>
+
+    <div class="cyber-card mt-10">
+        <div class="mini-title">Cookie e autenticazione</div>
+        <p class="theory-p">
+            Nel contesto dell’autenticazione, i cookie vengono utilizzati come <b>token di sessione</b>.
+            Il cookie non contiene informazioni sull’utente, non prova l’identità e non prova l’intenzione.
+        </p>
+
+        <div class="quote">
+            Il cookie è semplicemente una <b>chiave di accesso automatica</b>.
+            Chiunque riesca a inviarlo al server ottiene gli stessi privilegi dell’utente legittimo.
+        </div>
+
+        <p class="theory-p">
+            Questa osservazione è fondamentale per comprendere il <b>CSRF</b>.
+        </p>
+    </div>
+
+    <div class="cyber-card mt-10">
+        <div class="mini-title">Attributi di sicurezza</div>
+
+        <ul class="list-cyber text-gray-300">
+            <li>
+                <b>HttpOnly</b>: impedisce l’accesso al cookie tramite JavaScript (mitiga XSS, non CSRF).
+            </li>
+            <li>
+                <b>Secure</b>: il cookie viene inviato solo su connessioni HTTPS.
+            </li>
+            <li>
+                <b>SameSite</b>: introduce il concetto di <b>contesto della navigazione</b>, fondamentale contro CSRF.
+            </li>
+        </ul>
+
+        <div class="code-window">
+            <div class="code-header">Esempio</div>
+            <div class="code-body">Set-Cookie: session=abc; Secure; HttpOnly; SameSite=Lax</div>
+        </div>
+    </div>
+</section>
+
+<section id="m4" class="theory-section pt-32">
+   <div class="mb-12">
+    <h2 class="text-5xl font-black tracking-tighter uppercase">
+        Difesa <span class="text-cyan-500">CSRF</span>
+    </h2>
+    <p class="text-xl text-cyan-500/60 font-mono mt-4">
+        [ Module_03: Defense ]
+    </p>
+</div>
+
+<div class="theory-p">
+    La difesa dal <b>Cross-Site Request Forgery</b> si basa su un principio fondamentale:
+    <b>autenticare l’utente non significa autorizzare automaticamente l’azione</b>.
+    I cookie di sessione identificano chi sta effettuando la richiesta, ma non dimostrano
+    che tale richiesta sia stata <b>volutamente generata</b> dall’utente.
+</div>
+
+<div class="cyber-card">
+    <div class="mini-title">1. Separazione tra autenticazione e autorizzazione</div>
+    <p class="theory-p">
+        Una strategia difensiva corretta assume che:
+    </p>
+    <ul class="list-cyber text-gray-300">
+        <li>il <b>cookie di sessione</b> identifichi l’utente autenticato</li>
+        <li>un <b>meccanismo aggiuntivo</b> debba confermare l’intenzione dell’azione</li>
+    </ul>
+    <div class="quote">
+        Senza questa separazione concettuale, ogni richiesta autenticata viene trattata come legittima,
+        rendendo l’applicazione vulnerabile al CSRF.
+    </div>
+</div>
+
+<div class="cyber-card mt-10">
+    <div class="mini-title">2. Configurazione sicura dei cookie</div>
+    <p class="theory-p">
+        La prima linea di mitigazione è una corretta configurazione dei cookie di sessione.
+        Questi attributi <b>non eliminano il CSRF</b>, ma riducono significativamente la superficie di attacco.
+    </p>
+    <ul class="list-cyber text-gray-300">
+        <li><b>HttpOnly</b>: impedisce l’accesso ai cookie via JavaScript</li>
+        <li><b>Secure</b>: limita l’invio dei cookie a connessioni HTTPS</li>
+        <li><b>SameSite</b>: controlla il contesto di invio della richiesta</li>
+    </ul>
+    <div class="theory-p">
+        <b>SameSite=Lax</b> offre una protezione di base efficace, mentre <b>Strict</b> garantisce una difesa più
+        forte a costo di possibili limitazioni UX. <b>SameSite=None</b> richiede particolare attenzione.
+    </div>
+</div>
+
+<div class="cyber-card mt-10">
+    <div class="mini-title">3. Token anti-CSRF (difesa principale)</div>
+    <p class="theory-p">
+        Il <b>token anti-CSRF</b> è il meccanismo più affidabile contro il CSRF.
+        È un valore segreto, imprevedibile, generato dal server e associato alla sessione.
+    </p>
+    <ul class="list-cyber text-gray-300">
+        <li>non viene inviato automaticamente dal browser</li>
+        <li>deve essere incluso esplicitamente nella richiesta</li>
+        <li>viene verificato dal server prima dell’azione</li>
+    </ul>
+    <div class="quote">
+        Il token introduce un controllo esplicito sull’origine logica della richiesta,
+        colmando una lacuna intrinseca del modello basato sui cookie.
+    </div>
+</div>
+
+<div class="cyber-card mt-10">
+    <div class="mini-title">4. Integrazione e verifica del token</div>
+    <p class="theory-p">
+        Il token deve essere incluso in <b>tutte le richieste state-changing</b>.
+        Le modalità più comuni sono:
+    </p>
+    <ul class="list-cyber text-gray-300">
+        <li>campi nascosti nei form HTML</li>
+        <li>header HTTP personalizzati</li>
+        <li>parametri nel corpo di richieste JSON</li>
+    </ul>
+    <p class="theory-p">
+        Il server deve sempre verificare presenza, validità e associazione del token
+        alla sessione corrente. <b>La validità del cookie non deve mai compensare
+        l’assenza del token</b>.
+    </p>
+</div>
+
+<div class="cyber-card mt-10">
+    <div class="mini-title">5. Difese complementari</div>
+    <p class="theory-p">
+        Oltre ai token, è possibile rafforzare la difesa verificando il contesto della richiesta.
+    </p>
+    <ul class="list-cyber text-gray-300">
+        <li>header HTTP personalizzati (non inviabili via form HTML)</li>
+        <li>controllo degli header <b>Origin</b> e <b>Referer</b></li>
+    </ul>
+    <div class="quote">
+        Queste tecniche non sostituiscono i token anti-CSRF,
+        ma riducono ulteriormente il rischio in scenari complessi.
+    </div>
+</div>
+
+<div class="cyber-card mt-10">
+    <div class="mini-title">6. Relazione tra CSRF, XSS e sicurezza globale</div>
+    <p class="theory-p">
+        Una difesa CSRF efficace presuppone l’assenza di vulnerabilità <b>XSS</b>.
+        In presenza di XSS, un attaccante può leggere i token anti-CSRF
+        e inviare richieste perfettamente valide.
+    </p>
+    <div class="quote">
+        La protezione CSRF è parte di una strategia più ampia che include:
+        cookie sicuri, validazione dell’input e autorizzazioni esplicite.
+    </div>
+</div>
+
+</section>
+
+
+
+
+
+    <script>
+        function showSection(id) {
+            document.querySelectorAll('.theory-section').forEach(s => s.classList.remove('active'));
+            const el = document.getElementById(id);
+            if (el) el.classList.add('active');
+            document.querySelectorAll('.btn-nav').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById('btn-' + id);
+            if (activeBtn) activeBtn.classList.add('active');
+            window.scrollTo({
+                top: 0,
+                left: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        window.addEventListener('load', () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash) showSection(hash);
+        });
+    </script>
+</body>
+
+</html>
