@@ -193,13 +193,16 @@
     const btnAutori = document.getElementById('btn-autori');
     const popup = document.getElementById('autori-popup');
 
-    btnAutori.addEventListener('click', () => {
+    btnAutori.addEventListener('click', (e) => {
         popup.classList.toggle('hidden');
     });
 
-    // Chiudi il popup se clicco fuori
+    // Chiudi il popup solo se clicco DAVVERO fuori
     window.addEventListener('click', (e) => {
-        if (!popup.contains(e.target) && e.target !== btnAutori) {
+        const clickedOnButton = e.target.closest('#btn-autori');
+        const clickedOnPopup = popup.contains(e.target);
+
+        if (!clickedOnButton && !clickedOnPopup) {
             popup.classList.add('hidden');
         }
     });
@@ -239,20 +242,20 @@
                     <path d="M740 210 L860 210" />
                 </g>
                 <g fill="#e2e8f0" font-family="Inter, sans-serif" font-size="28" font-weight="700">
-                    <text x="95" y="150">Vittima</text>
-                    <text x="485" y="150">Browser</text>
-                    <text x="890" y="150">Sito bersaglio</text>
+                    <text x="110" y="150">Vittima</text>
+                    <text x="490" y="150">Browser</text>
+                    <text x="905" y="150">Sito bersaglio</text>
                 </g>
                 <g fill="#cbd5e1" font-family="Fira Code, monospace" font-size="18">
                     <text x="95" y="195">Utente loggato</text>
                     <text x="95" y="220">Cookie validi</text>
-                    <text x="485" y="195">Invia richiesta +</text>
-                    <text x="485" y="220">cookie automatici</text>
+                    <text x="485" y="195">Invia richiesta</text>
+                    <text x="485" y="220">+ cookie automatici</text>
                     <text x="890" y="195">Accetta richiesta</text>
                     <text x="890" y="220">se manca controllo</text>
                 </g>
                 <g fill="#ffd166" font-family="Fira Code, monospace" font-size="16">
-                    <text x="435" y="40">richiesta forzata da sito malevolo</text>
+                    <text x="390" y="250">richiesta forzata da sito malevolo</text>
                 </g>
             </svg>
          
